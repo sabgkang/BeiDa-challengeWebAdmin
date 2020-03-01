@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>uGym login database</title>
+
+  <link rel="stylesheet" href="css/main.css">
+
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+  <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+
+  <link rel="stylesheet" href="css/loading.css" />
+  <script src="js/loading.js"></script>
+</head>
+
+<body>
+  <h1>管理員登入</h1>
+  <div id="loginDiv" style="border-width:1px;border-style:solid;border-color:gray;padding-top: 30px; width: 680px;height: 180px; margin: 0 auto; margin-top: 30px">
+    <div class="challengeLabel" style="width: 150px; float: left; text-align: right">Email Address</div>
+    <input id="emailAddress" class="challengeInput" style="width: 440px" type="email" placeholder="請輸入 Email Address"><br>
+
+    <div class="challengeLabel" style="width: 150px; float: left; text-align: right">密 碼</div>
+    <input id="password" class="challengeInput" style="width: 440px" type="password" placeholder="請輸入密碼"><br>
+
+    <button class="btn-blue" onclick="signIn()" style="margin-left: 250px"><i class="fa fa-sign-in"></i>&nbsp 登入</button>
+    <button class="btn-red" onclick="signInAbort()" style="margin-left: 30px"><i class="fa fa-thumbs-down"></i>&nbsp 放棄</button>
+  </div>
+
+  <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-app.js"></script>
+
+  <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-analytics.js"></script>
+
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-firestore.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyC8XdbhwMkdyC5N3Nit3NRcIBKbjWEqjww",
+      authDomain: "ugym-beida.firebaseapp.com",
+      databaseURL: "https://ugym-beida.firebaseio.com",
+      projectId: "ugym-beida",
+      storageBucket: "ugym-beida.appspot.com",
+      messagingSenderId: "1054766854677",
+      appId: "1:1054766854677:web:56615d24634c799334941c",
+      measurementId: "G-7V4C3BW5VL"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    var database = firebase.database();
+
+    var isLogin = false;
+    
+    firebase.auth().onAuthStateChanged(function(user) {
+      console.log(user);
+
+      if (user == null) {
+        // not login
+        console.log("no login");
+        $("#loginStatus").text("請登入來寫入資料庫");
+        $("#logToggle").text("登入");
+        isLogin = false;
+      } else {
+        // login
+        console.log(user.email);
+        $("#loginStatus").text("Hello " + user.email);
+        $("#logToggle").text("登出");
+        isLogin = true;
+        window.location.href = 'index.html';
+      }
+    });
+
+    function signIn() {
+      //check email
+      if (!validateEmail($("#emailAddress").val())) {
+        $("#emailAddress").val("");
+        $("#emailAddress").attr("placeholder", "Email Address Error, try again!");
+        $("#emailAddress").css("background-color", "yellow");
+      } else {
+        firebase.auth().signInWithEmailAndPassword($("#emailAddress").val(), $("#password").val()).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          alert("Login Error! Try again!")
+        });
+      }
+
+    }
+
+    function validateEmail(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+      return re.test(String(email).toLowerCase());
+    }
+
+
+    function signInAbort() {
+      // $("#loginDiv").hide();
+      window.location.href = 'index.html';
+    }
+  </script>
+
+
+
+</body>
+
+</html>

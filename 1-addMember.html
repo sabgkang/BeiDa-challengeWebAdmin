@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>uGym 客戶管理</title>
+
+  <link rel="stylesheet" href="css/main.css">
+
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+  <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+
+  <link rel="stylesheet" href="css/loading.css" />
+  <script src="js/loading.js"></script>
+</head>
+
+<body>
+
+  <!--  ==================== 客戶列表 (HTML)=============================-->
+  <div id="memberDiv">
+    <h1>客戶管理</h1>
+    <hr>
+    <button class="btn-blue" id="closeMemberBtn" onclick="window.location.href = 'index.html';"><i class="fa fa-arrow-left"></i>&nbsp 回主畫面</button>
+    <button class="btn-blue" id="addMemberBtn" onclick="addMember()"><i class="fa fa-plus"></i>&nbsp 新增客戶</button>
+
+    <button class="btn-red" id="refreshMemberBtn" onclick="readMemberfromDB()" style="margin-left: 20px"><i class="fa fa-refresh"></i>&nbsp 刷新客戶</button>
+
+    <table id="memberTable" class="display" style="font-family: 'Noto Sans TC';width: 100% ">
+      <thead>
+        <tr id="table-header">
+          <th style="width: 80px">姓名</th>
+<!--          <th style="width: 80px">LINE ID</th>-->
+          <th style="width: 50px">性別</th>
+          <th style="width: 100px">生日</th>
+          <th style="width: 50px">電話</th>
+          <th style="width: 80px">身分字號</th>
+          <th>地址</th>
+          <th style="width: 250px">操作</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+  <!--  ==================== 客戶列表 (HTML)=============================-->
+
+  <!--  ==================== 新增客戶 (HTML)=============================-->
+  <div id="addMemberInfo" style=" font-family:'Noto Sans TC'">
+    <h2 value="00">新增客戶</h2>
+    <hr>
+    <div style="font-size: 20px;">
+      <div class="challengeLabel">客戶姓名</div> <input id="newMemberName" class="challengeInput" type="text" placeholder="請輸入客戶姓名"><br>
+      <div class="challengeLabel">LINE Id</div> <input id="newMemberLINEId" class="challengeInput" type="text" placeholder="請輸入LINE ID"><br>
+      <div class="challengeLabel">性別</div>
+      <select id="newMemberGender" class="challengeInput" name="newMemberGender" style="width: 413px;height: 38px">
+        <option value="男">男</option>
+        <option value="女">女</option>
+        <option value="其他">其他</option>
+        <option value="不透漏">不透漏</option>
+      </select><br>
+
+      <div class="challengeLabel">生日</div> <input id="newMemberBirth" class="challengeInput" type="text" placeholder="請輸入生日，例如 2019-01-01"><br>
+
+      <div class="challengeLabel">電話</div> <input id="newMemberPhoneNum" class="challengeInput" type="text" placeholder="請輸入電話"><br>
+
+      <div class="challengeLabel">身分字號</div> <input id="newMemberIdNum" class="challengeInput" type="text" placeholder="請輸入客戶身分字號"><br>
+
+      <div class="challengeLabel">地址</div> <input id="newMemberAssress" class="challengeInput" type="text" placeholder="請輸入客戶地址"><br>
+      <button class="btn-blue" onclick="addMemberInfo()">確定</button>
+      <button class="btn-red" onclick="closeAddMember()">取消</button>
+    </div>
+  </div>
+  <!--  ==================== 新增客戶 (HTML)=============================-->
+
+  <!--  ==================== 客戶已挑戰賽 (HTML)========================-->
+  <div id="myChallengeDiv">
+    <h1 id="客戶已參加挑戰賽">已挑戰賽</h1>
+    <hr>
+    <div id="myChallenges">
+      <button class="btn-blue" id="backBtn" onclick="closeMyChallenges()">返回</button>
+
+      <table id="usedChallengesTable" class="display" style="font-family: 'Noto Sans TC';width: 100%">
+        <thead>
+          <tr id="table-header">
+            <th style="width: 120px">挑戰賽編號</th>
+            <th>挑戰賽內容</th>
+            <th style="width: 200px">挑戰期間</th>
+            <th style="width: 50px">操作</th>
+          </tr>
+        </thead>
+      </table>
+      <div style="height: 100px"></div>
+      <hr>
+      <table id="myChallengesHistory" class="display" style="font-family: 'Noto Sans TC';width: 100% ">
+        <thead>
+          <tr id="table-header">
+            <th style="width: 120px">歷史挑戰賽</th>
+            <th>挑戰賽名稱</th>
+
+            <th style="width: 200px">挑戰期間</th>
+
+            <th style="width: 50px">操作</th>
+          </tr>
+        </thead>
+      </table>
+
+    </div>
+  </div>
+  <!--  ==================== 客戶已挑戰賽 (HTML)========================-->
+
+
+  <!--  ==================== 可參加挑戰賽 (HTML)=============================-->
+  <div id="challengeDiv">
+    <h1 id="可參加挑戰賽">可參加挑戰賽編號</h1>
+    <hr>
+    <div id="challenges">
+      <button class="btn-blue" id="returnBtn" onclick="returnFromChallenges()">返回</button>
+
+      <table id="notUsedChallengeTable" class="display" style="font-family: 'Noto Sans TC';width: 100%">
+        <thead>
+          <tr id="table-header">
+            <th style="width: 120px">挑戰賽編號</th>
+            <th>挑戰賽內容</th>
+            <th style="width: 200px">挑戰期間</th>
+
+            <th style="width: 50px">操作</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  </div>
+  <!--  ==================== 可挑戰賽 (HTML)=============================-->
+
+
+  <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-app.js"></script>
+
+  <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-analytics.js"></script>
+
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-firestore.js"></script>
+
+
+  <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyC8XdbhwMkdyC5N3Nit3NRcIBKbjWEqjww",
+      authDomain: "ugym-beida.firebaseapp.com",
+      databaseURL: "https://ugym-beida.firebaseio.com",
+      projectId: "ugym-beida",
+      storageBucket: "ugym-beida.appspot.com",
+      messagingSenderId: "1054766854677",
+      appId: "1:1054766854677:web:56615d24634c799334941c",
+      measurementId: "G-7V4C3BW5VL"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    var database = firebase.database();
+
+    var isLogin = false;
+    var memberData = [];
+    var memberLineId =[];
+    var myChallengesData = [];
+    var myChallengesHistory = [];
+    var challengeData = [];
+    var challengeHistory = [];
+    var notInChallenges=[];
+    var username;
+    
+    var userForAddingChallenge;
+    var userForCancelChallenge;
+    var userPhoneNumberForCancelChallenge;
+    var userPhoneNumberForUsingChallenge;
+
+    // Monitoring AuthState
+    firebase.auth().onAuthStateChanged(function(user) {
+      console.log(user);
+
+      if (user == null) {
+        // not login
+        console.log("no login");
+        $("#loginStatus").text("請登入來寫入資料庫");
+        $("#logToggle").text("登入");
+        isLogin = false;
+      } else {
+        // login
+        console.log(user.email);
+        $("#loginStatus").text("Hello " + user.email);
+        $("#logToggle").text("登出");
+        isLogin = true;
+      }
+    });
+
+    var readTimes = 0;
+    var toRead = 3;
+
+    firebase.database().ref('users/三峽運動中心/挑戰賽').once('value').then(function(snapshot) {
+      console.log("data read done");
+      readTimes++;
+      var result = snapshot.val();
+      challengeData = JSON.parse(result.現在挑戰賽);
+      challengeHistory = JSON.parse(result.過去挑戰賽);
+      buildChallengesTable();
+      if (readTimes == toRead) {
+        $.loading.end();
+      }
+    });
+
+    $.loading.start('Loading data');
+    firebase.database().ref('users/三峽運動中心/挑戰賽管理').once('value').then(function(snapshot) {
+      console.log("class read done");
+      readTimes++;
+      var result = snapshot.val();
+      challengeMember = JSON.parse(result.挑戰賽會員);
+      if (readTimes == toRead) $.loading.end();
+    });
+
+    // Read memberData from the database
+    firebase.database().ref('users/三峽運動中心/客戶管理').once('value').then(function(snapshot) {
+      console.log("member read done");
+      readTimes++;
+      var result = snapshot.val();
+      memberData = JSON.parse(result.會員資料);
+      
+      // 轉換 userId，從 33字元長度 "Uaabb....ccdd" ==> 顯示 "Uaabb..ccdd"
+//      memberLineId=[];
+//      memberData.forEach(function(member, index, array){
+//        memberLineId.push(member[1]);
+//        var head, tail;
+//        head=member[1].slice(0,5);
+//        tail=member[1].slice(29,33)
+//        //console.log(head+".."+tail);
+//        member[1]=head.toUpperCase()+".."+tail.toUpperCase();
+//      });
+      
+      buildMemberTable();      
+      if (readTimes == toRead) {
+        $.loading.end();
+      }
+    });
+    
+    buildUsedChallengesTable();
+    //buildChallengesTable();
+    $("#addMemberInfo").hide();
+    $("#myChallengeDiv").hide();
+    $("#challengeDiv").hide();    
+
+    //======== Functions ===================//
+
+    function buildMemberTable() {
+      var memberTable = $('#memberTable').DataTable({
+        data: memberData,
+        pageLength: 10,
+        lengthChange: false,
+        deferRender: true,
+        columns: [{ //title: 姓名
+            className: "centerCell"
+          },
+//          {
+//            //title: LINE ID
+//            className: "centerCell"
+//          },
+          { //title: "姓別"
+            className: "centerCell"
+          },
+          {
+            //title: "年紀"
+            className: "centerCell"
+          },
+          {
+            //title: "電話"
+            className: "centerCell"
+          },
+          {
+            //title: "身分字號"
+            className: "centerCell"
+          },
+          {
+            //title: "地址", 不對中，對左
+
+          },
+          {
+            //title: "操作",
+            data: null,
+            defaultContent: "<button class = 'checkUsedChallenges to-edit' style='width: 100px'>已參加挑戰賽</button> " +
+              "<button class = 'checkNewChallenges to-edit' style='width: 100px'>參加挑戰賽</button> " +
+              "<button class = 'memberDeleteBtn to-delete'>刪除</button>"
+          }
+        ]
+      });
+
+      $("#memberTable_filter").css("font-family", "Noto Sans TC");
+      $("#memberTable_info").css("font-family", "Noto Sans TC");
+      $("#memberTable_paginate").css("font-family", "Noto Sans TC");
+
+      // ============ Function for checkUsedChallenges ==================================================
+      $('#memberTable tbody').on('click', '.checkUsedChallenges', function() {
+        console.log("checkUsedChallenges is clicked");
+
+        $("#myChallengeDiv").show();
+        $("#memberDiv").hide();
+
+
+        var data = memberTable.row($(this).parents('tr')).data();
+        userName = data[0];
+        var userPhoneNumber = data[3];
+        
+        // 取消課程用
+        userForCancelChallenge = data[0];
+        userPhoneNumberForCancelChallenge = data[3];
+
+        $("#客戶已參加挑戰賽").text(data[0] + " - 已參加挑戰賽");
+
+        var myChallengesNumbers = [];
+        challengeMember.forEach(function(item, index, array) {
+          //console.log(item[1][0]);
+          var itemLength = item.length;
+          for (var i = 0; i < itemLength; i++) {
+            //console.log(i, item[i][0]);
+            if (item[i][4] == userPhoneNumber) {
+              myChallengesNumbers.push(item[0]);
+            };
+          }
+        });
+
+        //console.log(myChallengesNumbers);
+
+        myChallengesData = [];
+        challengeData.forEach(function(challenge, index, array) {
+          //console.log(challenge);
+
+          myChallengesNumbers.forEach(function(attended, index, array) {
+            if (attended == challenge[0]) {
+              //console.log("match", attended);
+              myChallengesData.push(challenge);
+            }
+          });
+        });
+        
+        // Modify my myChallengesData 課程人數 to 繳費狀況 based on challengeMember
+//        myChallengesData.forEach(function(challenge, index, array){
+//          //console.log(challenge[0]); // 挑戰賽編號
+//          
+//          challengeMember.forEach(function(item, index, array){
+//            if (item[0] == challenge[0]) {
+//              //console.log(item);
+//              
+//              for (var i=1; i<item.length;i++){
+//                //console.log(item[i][0], item[i][1]);
+//                
+//                if (item[i][0]==userName) {
+//                  //console.log(userName, item[i][1]);
+//                  challenge[5]=item[i][1];
+//                  //console.log("bbb", challenge);
+//                }
+//              }
+//            }  
+//          });
+//          
+//          //console.log("next");
+//        });
+        
+        myChallengesHistory = [];
+        challengeHistory.forEach(function(challenge, index, array) {
+          //console.log(challenge);
+
+          myChallengesNumbers.forEach(function(attended, index, array) {
+            if (attended == challenge[0]) {
+              //console.log("match", attended);
+              myChallengesHistory.push(challenge);
+            }
+          });
+        });
+
+
+        var table = $('#usedChallengesTable').DataTable();
+        table.clear();
+        table.rows.add(myChallengesData);
+        table.draw();
+
+        var table = $('#myChallengesHistory').DataTable();
+        table.clear();
+        table.rows.add(myChallengesHistory);
+        table.draw();
+
+      });
+
+      // ============ Function for checkNewChallenges ================================================== 
+      $('#memberTable tbody').on('click', '.checkNewChallenges', function() {
+        console.log("checkNewChallenges is clicked");
+
+        var data = memberTable.row($(this).parents('tr')).data();
+        var userPhoneNumber = data[3];
+        userName = data[0];
+        userForAddingChallenge = data[0]; // simple patch
+        
+        userPhoneNumberForUsingChallenge = data[3];
+        
+        userLineId = data[6];
+        
+        // 尋找未的挑戰賽
+        var myChallengesNumbers = [];
+        challengeMember.forEach(function(item, index, array) {
+          //console.log(item[1][0]);
+          var itemLength = item.length;
+          var matched = false;
+          for (var i = 0; i < itemLength; i++) {
+            //console.log(i, item[i][0]);
+            if (item[i][4] == userPhoneNumber) {
+              matched = true;
+            };
+          }
+          if (!matched) myChallengesNumbers.push(item[0]);
+        });
+
+        //console.log("aaa", myChallengesNumbers);
+
+        notInChallenges = [];
+        challengeData.forEach(function(challenge, index, array) {
+          myChallengesNumbers.forEach(function(notAttended, index, array) {
+            if (notAttended == challenge[0]) {
+              //console.log("not match", attended);
+              notInChallenges.push(challenge);
+            }
+          });
+        });
+                
+        var table = $('#notUsedChallengeTable').DataTable();
+        table.clear();
+        table.rows.add(notInChallenges);
+        table.draw();
+        
+        $("#可參加挑戰賽").text(userName + " - 可參加挑戰賽");
+       // console.log(userName);
+
+        $("#memberDiv").hide();
+        $("#challengeDiv").show();
+
+      });
+
+      // ============ Function for memberDeleteBtn============================================= 
+      $('#memberTable tbody').on('click', '.memberDeleteBtn', function() {
+        console.log("memberDeleteBtn is clicked");
+
+        var delThisMember = confirm("確定要刪除此客戶");
+
+        if (!delThisMember) {
+          return 0;
+        }
+
+        var memberTable = $('#memberTable').DataTable();
+        var data = memberTable.row($(this).parents('tr')).data();
+        var userPhoneNumber = data[3];
+
+        console.log(userPhoneNumber);
+        
+        // 刪除客戶
+        memberData.forEach(function(member, index, array) {
+          if (member[3] == userPhoneNumber) {
+            memberData.splice(index, 1);
+          }
+        });
+
+        // 將更新新客戶寫入資料庫
+        database.ref('users/三峽運動中心/客戶管理').set({
+          會員資料: JSON.stringify(memberData),
+        }, function(error) {
+          if (error) {
+            console.log("Write to database error, revert challengeData back");
+            challengeData.pop();
+          }
+          console.log('Write to database successful');
+        });
+
+        var memberTable = $('#memberTable').DataTable();
+        memberTable.clear().draw();
+        memberTable.rows.add(memberData);
+        memberTable.draw();
+
+      });
+
+    }
+
+    function buildUsedChallengesTable() {
+      var usedChallengesTable = $('#usedChallengesTable').DataTable({
+        data: myChallengesData,
+        order: false,
+        pageLength: 10,
+        lengthChange: false,
+        deferRender: true,
+        columns: [{ //title: 可用挑戰賽編號
+            className: "centerCell"
+          },
+          {
+            //title: 挑戰賽內容
+          },
+          {
+            //title: "挑戰期間"
+            className: "centerCell"
+          },
+          {
+            //title: "操作",
+            data: null,
+            defaultContent: "<button class = 'cancellUsageBtn to-edit' style='width: 100px'>取消</button> " 
+          }
+        ]
+      });
+      
+      // ============ Function for cancellUsageBtn ================================================== 
+//      $('#usedChallengesTable tbody').on('click', '.cancellUsageBtn', function() {
+//        console.log("cancellUsageBtn is clicked");
+//                
+//        var usedChallengesTable = $('#usedChallengesTable').DataTable();
+//        var data = usedChallengesTable.row($(this).parents('tr')).data();
+//        var challengeName = data[0];
+//
+//        if (data[5]=="已繳費") {
+//          alert("已經繳過費");
+//          return 0;
+//        }
+//        
+//        var makePayment = confirm("確定已繳費");
+//        if (!makePayment) {
+//          return 0;
+//        }
+//        
+//        //更新繳費狀況
+//        console.log("進行繳費");
+//        
+//        //更新表格
+//        data[5] = "已繳費";       
+//        var memberTable = $('#usedChallengesTable').DataTable();
+//        memberTable.clear().draw();
+//        memberTable.rows.add(myChallengesData);
+//        memberTable.draw();        
+//        
+//        //更新 challengeMember
+//        challengeMember.forEach(function(item, index, array) {
+//          //console.log(item[0], challengeName);
+//          if (item[0]==challengeName){
+//            var itemLength = item.length;
+//            for (var i = 0; i < itemLength; i++) {
+//              //console.log(i, item[i][0]);
+//              if (item[i][0] == userName) {
+//                item[i][1]="已繳費"; // 修改的是 challengeMember
+//              };
+//            };
+//          }
+//        });
+        
+        //更新 challengeMember to 資料庫                   
+//          database.ref('users/三峽運動中心/挑戰賽管理').set({
+//            挑戰賽會員: JSON.stringify(challengeMember),
+//          }, function(error){
+//                if (error) {
+//                  //console.log(error);
+//                  return 0;
+//                }
+//                  console.log('Write to database successful');
+//          });          
+//      });   
+      
+      // ============ Function for cancellUsageBtn ================================================== 
+      $('#usedChallengesTable tbody').on('click', '.cancellUsageBtn', function() {
+        console.log("cancellUsageBtn is clicked");
+        
+        var usedChallengesTable = $('#usedChallengesTable').DataTable();
+        var data = usedChallengesTable.row($(this).parents('tr')).data();
+        var challengeName = data[0];
+        var challengeIdx = -1;
+        var alreadyInUse = false;
+        
+        // 檢查是否已報過名
+        challengeMember.forEach(function(challenge, index, array){
+          if (challenge[0]==challengeName) {
+            for (var i=0; i< challenge.length; i++) {
+              //console.log(challenge[i][0]);
+              if (challenge[i][4]==userPhoneNumberForCancelChallenge) {
+                //alert("已經過了");
+                console.log(challengeMember[index][i]);
+                alreadyInUse = true;
+                challengeMember[index].splice(i, 1);
+                //return(0); //只跳出 forEach 迴圈
+              }
+            };
+          }
+        })
+        
+        var thisI=0;
+        for (var i=0; i<myChallengesData.length; i++) {
+          if (myChallengesData[i][0]==challengeName) {
+            thisI = i; 
+            break;
+          }
+        }
+
+        myChallengesData.splice(thisI,1);
+        // redraw table
+        usedChallengesTable.clear();
+        usedChallengesTable.rows.add(myChallengesData);
+        usedChallengesTable.draw();
+                   
+        if(alreadyInUse) {
+          console.log("aaa");
+          closeMyChallenges();
+          database.ref('users/三峽運動中心/挑戰賽管理').set({
+            挑戰賽會員: JSON.stringify(challengeMember),
+          }, function(error){
+                if (error) {
+                  //console.log(error);
+                  return 0;
+                }
+                  console.log('Write to database successful');
+                  location.reload();
+          });          
+        }
+        
+
+      });      
+
+      $("#usedChallengesTable_filter").css("font-family", "Noto Sans TC");
+      $("#usedChallengesTable_info").css("font-family", "Noto Sans TC");
+      $("#usedChallengesTable_paginate").css("font-family", "Noto Sans TC");
+
+      var myChallengesHistory = $('#myChallengesHistory').DataTable({
+        data: myChallengesHistory,
+        order: false,
+        pageLength: 10,
+        lengthChange: false,
+        deferRender: true,
+        columns: [{ //title: 歷史挑戰賽
+            className: "centerCell"
+          },
+          {
+            //title: 挑戰賽名稱
+          },
+
+          {
+            //title: "挑戰期間"
+            className: "centerCell"
+          },
+
+          {
+            //title: "操作",
+            data: null,
+            defaultContent: "<button class = 'checkUsedChallenges to-remark' style='width: 100px'>備註</button> "
+          }
+        ]
+      });
+      
+      //location.reload();
+      
+      $("#myChallengesHistory_filter").css("font-family", "Noto Sans TC");
+      $("#myChallengesHistory_info").css("font-family", "Noto Sans TC");
+      $("#myChallengesHistory_paginate").css("font-family", "Noto Sans TC");
+    }
+
+    function buildChallengesTable() {       
+      $("#challengeDiv").show();
+      var challengesTable = $('#notUsedChallengeTable').DataTable({
+        data: notInChallenges, //challengeData,
+        //order: false,
+        pageLength: 10,
+        lengthChange: false,
+        deferRender: true,
+        columns: [{ //title: 可用挑戰賽編號
+            className: "centerCell"
+          },
+          {
+            //title: 挑戰賽內容
+          },
+
+          {
+            //title: "挑戰期間"
+            className: "centerCell"
+          },
+
+          {
+            //title: "操作",
+            data: null,
+            defaultContent: "<button id='joinBtn' class = 'useChallengeBtn to-edit' style='width: 100px'>參加</button> "
+          }
+        ]
+      });
+      
+      $("#challengeDiv").hide();
+      
+      //TODO
+      // ============ Function for useChallengeBtn ================================================== 
+      $('#notUsedChallengeTable tbody').on('click', '.useChallengeBtn', function() {
+        console.log("useChallengeBtn is clicked");
+        var challengesTable = $('#notUsedChallengeTable').DataTable();
+        var data = challengesTable.row($(this).parents('tr')).data();
+        var challengeName = data[0];
+        var challengeIdx = -1;
+        var alreadyInUse = false;
+        // 檢查是否已報過名
+        challengeMember.forEach(function(challenge, index, array){
+          if (challenge[0]==challengeName) {
+            //console.log(challengeName);
+            challengeIdx = index;
+            challenge.push([userForAddingChallenge, "已參加", "未確認", userLineId, userPhoneNumberForUsingChallenge]);
+          }
+        }) 
+        
+        //刪除 notInChallenges 的那一列，重劃表格
+        var thisI=0;
+        for (var i=0; i<notInChallenges.length; i++) {
+          if (notInChallenges[i][0]==challengeName) {
+            thisI = i; 
+            break;
+          }
+        }
+
+        notInChallenges.splice(thisI,1);        
+        // redraw table
+        challengesTable.clear();
+        challengesTable.rows.add(notInChallenges);
+        challengesTable.draw();        
+        
+        
+
+        // Write challengeMember to database
+        database.ref('users/三峽運動中心/挑戰賽管理').set({
+          挑戰賽會員: JSON.stringify(challengeMember),
+        }, function(error){
+              if (error) {
+                //console.log(error);
+                return 0;
+              }
+                //console.log('Write to database successful');
+                //console.log("aaa", $("#joinBtn").text());
+                alert("成功!");
+                //closeMyChallenges();
+        });          
+     
+
+      });
+      
+      $("#notUsedChallengeTable_filter").css("font-family", "Noto Sans TC");
+      $("#notUsedChallengeTable_info").css("font-family", "Noto Sans TC");
+      $("#notUsedChallengeTable_paginate").css("font-family", "Noto Sans TC");
+    }
+
+    function signIn() {
+      //check email
+      if (!validateEmail($("#emailAddress").val())) {
+        $("#emailAddress").val("");
+        $("#emailAddress").attr("placeholder", "Email Address Error, try again!");
+        $("#emailAddress").css("background-color", "yellow");
+      } else {
+        firebase.auth().signInWithEmailAndPassword($("#emailAddress").val(), $("#password").val()).catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          alert("Login Error! Try again!")
+        });
+      }
+
+    }
+
+    function backToMain() {
+      window.location.href = 'index.html';
+    }
+
+    function readMemberfromDB() {
+      $.loading.start('Loading data');
+      firebase.database().ref('users/三峽運動中心/客戶管理').once('value').then(function(snapshot) {
+        console.log("member read done");
+        var result = snapshot.val();
+        memberData = JSON.parse(result.會員資料);
+        $.loading.end();
+        
+        // 轉換 userId，從 33字元長度 "Uaabb....ccdd" ==> 顯示 "Uaabb..ccdd"
+//        memberData.forEach(function(member, index, array){
+//          var head, tail;
+//          head=member[1].slice(0,5);
+//          tail=member[1].slice(29,33)
+//          //console.log(head+".."+tail);
+//          member[1]=head.toUpperCase()+".."+tail.toUpperCase();
+//        });        
+
+        var memberTable = $('#memberTable').DataTable();
+        memberTable.clear().draw();
+        memberTable.rows.add(memberData);
+        memberTable.draw();
+      });
+    }
+
+    function addMember() {
+      //$("#memberDiv").hide();
+      //$("#addMemberInfo").show();
+      alert("抱歉，目前只能用 LINE 新增客戶");
+    }
+
+
+    function addMemberInfo() {
+
+      var addThisMember = confirm("確定要新增此客戶");
+
+      if (!addThisMember) {
+        //        $("#addMemberInfo").hide();
+        //        $("#memberDiv").show();        
+        return 0;
+      }
+
+      var dataToAdd = [
+        $("#newMemberName").val(),
+        $("#newMemberLINEId").val(),
+        $("#newMemberGender").val(),
+        $("#newMemberBirth").val(),
+        $("#newMemberPhoneNum").val(),
+        $("#newMemberIdNum").val(),
+        $("#newMemberAssress").val(),
+      ];
+
+
+      // 更新 local challengeData
+      memberData.push(dataToAdd);
+
+      // 將新客戶寫入資料庫
+// 先 Remark，避免誤寫入資料
+//      database.ref('users/三峽運動中心/客戶管理').set({
+//        會員資料: JSON.stringify(memberData),
+//      }, function(error) {
+//        if (error) {
+//          console.log("Write to database error, revert challengeData back");
+//          challengeData.pop();
+//        }
+//        console.log('Write to database successful');
+//      });
+
+      var table = $('#memberTable').DataTable();
+      table.clear().draw();
+      table.rows.add(memberData);
+      table.draw();
+
+      $("#addMemberInfo").hide();
+      $("#memberDiv").show();
+
+    }
+
+    function closeAddMember() {
+      $("#addMemberInfo").hide();
+      $("#memberDiv").show();
+    }
+
+
+    function closeMyChallenges() {
+      console.log("close myChallenges");
+      $("#myChallengeDiv").hide();
+      $("#memberDiv").show();
+    }
+    
+    function returnFromChallenges() {
+      console.log("returnFromChallenges");
+      $("#challengeDiv").hide();   
+      $("#memberDiv").show();
+           
+    }
+    
+  </script>
+
+
+</body>
+
+</html>

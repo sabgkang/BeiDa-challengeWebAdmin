@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>uGym Challenge</title>
+
+  <link rel="stylesheet" href="css/main.css">
+
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+TC&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <script src="https://code.jquery.com/jquery-1.12.3.min.js"></script>
+  
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css" />
+  <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+
+  <link rel="stylesheet" href="css/loading.css" />
+  <script src="js/loading.js"></script>
+
+<style>
+  input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    border: 0;
+}
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+  </style>
+</head>
+
+<body >
+  <!--  for test-->
+  
+<!--
+  <button class="btn-red" onclick="window.location.href = '1-addMember.html';">FOR TEST ONLY!!!!!</button>
+  <button onclick="myFunctionA()">SignIn A</button>
+  <button onclick="myFunctionB()">SignIn B</button>
+
+  <button onclick="myFunction()">UserID</button>
+  <button onclick="myFunctionR()">Read Database</button>
+
+  <button onclick="myFunctionW()">Write Database</button>
+
+  <button onclick="myFunctionSignOut()">SignOut</button>
+-->
+
+  <!--  end of for test -->
+  
+  <!--  **** 標頭 ****-->
+  <div>
+    <button class="btn-blue" id="memberMangementBtn" onclick="memberManage()" style="float: right; margin-right: 10px" disabled="disabled" ><i class="fa fa-user"></i>&nbsp 客戶管理</button>
+    <button class="btn-blue" id="logToggle" onclick="logInAndOut()" style="float: right; margin-right: 10px; margin-left: 0px"><i class="fa fa-sign-in"></i>&nbsp 登入</button>
+    <button id="loginStatus" class="btn-blue" style="float: right; background-color: white; color: gray">請登入來寫入資料庫</button>
+
+<!--    <h1 id="titleHeader">三峽運動中心 - 挑戰賽管理</h1>-->
+    <h1 id="titleHeader">挑戰賽管理</h1> 
+  </div>
+  <hr>
+  <!--  **** 標頭:結束 ****-->
+  
+  <!--  **** 進行中挑戰賽的畫面 **** ?? 應該可以包成一個大 DIV，方便 hide() 和 show()?? -->
+  <h2 id="inProgress">挑戰賽</h2>
+  <button class="btn-blue" id="addChallengeBtn" onclick="addChallenge()"><i class="fa fa-plus"></i>&nbsp 新增挑戰賽</button>
+
+  <button class="btn-red" id="refreshBtn" onclick="readFromDB()" style="margin-left: 20px"><i class="fa fa-refresh"></i>&nbsp 刷新挑戰賽</button>
+
+  <table id="challengeTable" class="display">
+    <thead>
+      <tr id="table-header">
+        <th style="width: 100px">挑戰賽編號</th>
+        <th>挑戰賽內容</th>
+        <th style="width: 200px">有效期限</th>
+
+        <th style="width: 150px">操作</th>
+
+      </tr>
+    </thead>
+  </table>
+  <!--  **** 進行中挑戰賽的畫面:結束 **** -->
+  
+  <!--  **** 挑戰賽歷史的畫面 **** ?? 應該可以包成一個大 DIV，方便 hide() 和 show()?? -->  
+  <div id="spacerBetweenTables" style="height: 100px; text-align: ">
+    <div style="height: 50px"></div>
+    <hr>
+    <h2>挑戰賽歷史紀錄</h2>
+  </div>
+
+  <table id="challengeHistoryTable" class="display" style="width:100%;">
+    <thead>
+      <tr id="table-header">
+        <th style="width: 100px">挑戰賽編號</th>
+        <th>挑戰賽內容</th>
+        <th style="width: 200px">有效期限</th>
+        <th style="width: 150px"></th>
+      </tr>
+    </thead>
+  </table>
+  <!--  **** 挑戰賽歷史的畫面:結束 **** -->
+
+  <!--  **** 新增挑戰賽的畫面，包成一個大 DIV，方便 hide() 和 show() **** -->
+  <div id="addChallenge" style="height: 600px; font-family:'Noto Sans TC'">
+    <h2 id="challengeNumber" value="00">新增挑戰賽 - C0000</h2>
+    <div style="font-size: 20px;">
+      <div class="challengeLabel">挑戰賽內容</div> <input id="challengeName" class="challengeInput" type="text" placeholder="請輸入挑戰賽內容"><br>     
+      <div class="challengeLabel">有效期限</div> 
+      <span>
+        &nbsp從<input id="challengeStartDate" class="challengeInput" type="date" style="width: 180px"> 
+        到<input id="challengeEndDate" class="challengeInput" type="date" style="width: 180px" > 
+      </span>
+      <br>   
+      <div class="challengeLabel">其他說明</div> <input id="challengeOtherDesc" class="challengeInput" type="text" placeholder="請輸入其他說明"><br>
+
+      <form id ="picUpload" class="challengeLabel" style="width: 800px">       
+        <label for="file-upload" class="custom-file-upload">
+            選擇圖片
+        </label>
+        <input id="file-upload" type="file" name="file" onchange="readURL(this);">  
+        
+        <!--        <label class="custom-file-upload" onclick="uploadToCloudinary()">-->
+        <label class="custom-file-upload" onclick="uploadToImgur()">
+          上傳
+        </label> 
+        
+        <span id="上傳訊息" style="margin-left:20px; color:gray">圖片尚未選擇</span>
+      </form> 
+            
+      <img id="上傳挑戰賽圖片" src="#" alt="" style="margin-left: 20px; margin-top: 10px;" /> 
+           
+           <br><br>
+           <br>
+      <button class="btn-blue" onclick="challengeConfirm()">確定</button>
+      <button class="btn-red" onclick="challengeCancel()">取消</button>
+<!--
+      <span style="margin-left: 150px">重複</span>
+      <input id="repeatN" class="challengeInput" style="width: 50px; text-align: right; padding-right: 10px;" type="text" value="1" placeholder="重複幾週">
+      週(張)
+-->
+      <br>
+    </div>      
+  </div> 
+  <!--  **** 新增挑戰賽的畫面:結束 **** -->
+  
+
+  <!--  **** 挑戰賽細節的畫面，可以更新挑戰賽資料，及確認 **** -->
+  <div id="challengeDetailDiv" style="height: 600px; font-family:'Noto Sans TC'">
+    <button class="btn-blue" onclick="backToHome()" style="float: left"><i class="fa fa-arrow-left"></i>&nbsp 回到 挑戰賽管理</button>
+    <h2 id="challengeNumberDetail" style="margin-left: 200px" value="00">挑戰賽頁面</h2>
+    <div ><br>
+      <div class="challengeLabelDetail">挑戰賽內容</div> <input id="challengeDetail" class="challengeInputDetail" type="text" placeholder="請輸入挑戰賽內容"><br>
+
+      <div class="challengeLabelDetail">有效期限</div> 
+      <input id="challengeStartDateDetail" class="challengeInputDetail" type="date" style="width:190px">
+      <input id="challengeEndDateDetail"   class="challengeInputDetail" type="date" style="width:190px">
+      <br>
+
+      <div class="challengeLabelDetail">其他說明</div> <input id="challengeOtherDescDetail" class="challengeInputDetail" type="text"><br>
+      <img id="挑戰賽圖片" src="" alt="" width="490" style="margin-left:20px">
+      
+      <form id ="picUpdate" class="challengeLabel" style="width: 100%;margin-bottom:20px">       
+        <label for="file-update" class="custom-file-upload">
+            選擇圖片
+        </label>
+        <input id="file-update" type="file" name="file" onchange="readURL_detail(this);">  
+        
+        <!--        <label class="custom-file-upload" onclick="updateToCloudinary()">-->
+        <label class="custom-file-upload" onclick="updateToImgur()">
+          上傳
+        </label> 
+
+        <span id="上傳訊息-詳細" style="margin-left:20px; color:gray"></span>        
+      </form>
+      <br>      
+      <br>
+
+      <button class="btn-blue" onclick="backToHome()"><i class="fa fa-arrow-left"></i>&nbsp 回到 挑戰賽管理</button>
+      <button class="btn-red" onclick="challengeUpdate()">更新 挑戰賽資料</button>
+      <br>
+     <hr>
+      <table id="challengeMemberTable" class="display" style="width:100%;font-family:'Noto Sans TC'">
+        <thead>
+          <tr id="table-header">
+            <th>客戶姓名</th>
+            <th>電話號碼</th>            
+            <th>是否參加</th>
+            <th>確認</th>
+            <th style="width:  200px;">操作</th>
+          </tr>
+        </thead>
+      </table>
+    </div> 
+  </div>    
+  <!--  **** 挑戰賽細節的畫面:結束 **** -->
+  
+  <!--  **** 以上 HTML 畫面設計結束，但 datatables 必須靠 js/main-page.js 來完成。以下是 Javascript codes **** -->
+     
+  <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-app.js"></script>
+
+  <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
+  <!--  analytic 功能先不用-->
+  <!--  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-analytics.js"></script>-->
+
+  <!-- Add Firebase products that you want to use -->
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-database.js"></script>
+  
+  <!--  firestore 功能先不用-->
+  <!--  <script src="https://www.gstatic.com/firebasejs/7.5.2/firebase-firestore.js"></script>-->
+
+
+  <!-- 我們的 Firebase Operations 放在 js/firebase-ops.js -->
+  <script src="js/firebase-ops.js"></script>
+
+  <script>
+
+
+    //   資料格式
+    //    var memberData = [
+    //      ["謝小憲", "Jacky",   "男", "1966-01-01", "09XXXXXXXX", "A1XXXXXXXX", "台北市"],
+    //      ["許小琦", "Chantal", "女", "1966-02-02", "09XXXXXXXX", "A1XXXXXXXX", "竹北市"],   
+    //      ["盧小宏", "Tony",    "男", "1966-03-03", "09XXXXXXXX", "A1XXXXXXXX", "新竹市"],   
+    //    ];
+    //
+    //    var challengeMember =[
+    //      ["U0001", ["謝小憲", "已繳費", "已簽到"], ["許小琦", "未繳費", "未簽到"]],
+    //      ["U0002", ["許小琦", "已繳費", "未簽到"], ["謝小憲", "已繳費", "未簽到"]],   
+    //      ["U0003", ["盧小宏", "未繳費", "未簽到"], ["謝小憲", "已繳費", "未簽到"]],           
+    //    ];
+    //
+    //    var challengeMemberSet = [
+    //      ["謝東憲", "Jacky", "09XXXXXXXX", "A1XXXXXXXX", "台北市總統府", "YES", "NO"],
+    //    ];
+    //
+    //    [ID, Name, Coach, date/time, Calories, Max.Persons, Assist, Fee, OtherDesc]
+//        var challengeData = [
+//          ["C0002", "Inbody 100 元挑戰賽", "2020-02-28", "原價 350元", picURL],
+//          ["C0003", "乳清蛋白 100 元挑戰賽", "2020-02-28", "原價 400元"],
+//        ];
+//    
+//        var challengeHistory = [
+//          ["C0001", "Inbody 100 元挑戰賽", "2020-01-01", "原價 350元"],
+//        ];    
+    //    var coachSet = [
+    //      ["Jack", "男", "高大帥"],
+    //      ["Chantal", "女", "愛跑馬拉松"],
+    //    ];  
+    
+    // 全域變數，偷懶用，容易產生麻煩的 bugs
+    var challengeData = [];
+    var challengeHistory = [];
+    var challengeMemberSet = [];
+    var coachSet = [];
+    var memberData = [];
+    var challengeNumber;
+    var userLineId;
+    
+    // picture URL reurn from Cloudinary in onSuccess()
+    var securePicUrl="";
+
+    // 從 Firebase 資料庫取得 challengeData, challengeHistory, memberData, challengeMember, coachSet, 
+    // 定義在 js/firebase-ops.js 中
+    readFromDB();
+
+  </script>      
+
+  <!-- Main page init，初始化 datatables-->
+  <script src="js/main-page.js"></script>
+
+  <!-- 我們的 Functions-->
+  <script src="js/functions.js"></script>      
+
+  <!--  **** MAIN ***-->
+  <script type="text/javascript">
+    var challengeNum = 0; // Update from Database
+    var inaddChallenge = false;
+    var version = " V2.0";
+
+//    $("#titleHeader").text("三峽運動中心 - 挑戰賽管理"+version);
+    $("#titleHeader").text("挑戰賽管理"+version);    
+
+
+    $(document).ready(function() {
+      initMainPage(); // 在 js/main-page.js  
+
+    });
+  </script>
+
+
+    <script>        
+      // ========= 以下為方便  debug 的函式
+
+      var i = 0;
+
+      function myFunctionA() {
+        firebase.auth().signInWithEmailAndPassword("aaa@test.com", "aaaaaa").catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          document.getElementById("loader").innerHTML = "Login Error";
+        });
+      }
+
+      function myFunctionB() {
+        firebase.auth().signInWithEmailAndPassword("bbb@test.com", "bbbbbb").catch(function(error) {
+          // Handle Errors here.
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          document.getElementById("loader").innerHTML = "Login Error";
+        });
+      }
+
+      function myFunction() {
+//          var user = firebase.auth().currentUser;
+//          console.log(user.uid);
+
+      }
+
+      function myFunctionSignOut() {
+        firebase.auth().signOut();
+        console.log("logout");
+      }
+
+      function myFunctionR() {
+        console.log("Read Database");
+
+        var aaa = firebase.database().ref('users/三峽運動中心/挑戰賽/').once('value').then(function(snapshot) {
+          console.log("done");
+          var bbb = snapshot.val();
+          console.log(bbb);
+          console.log(JSON.parse(bbb.現在挑戰賽));
+          challengeData = JSON.parse(bbb.現在挑戰賽);
+        });
+
+      }
+
+
+      function myFunctionW() {
+
+        try {
+          var userId = firebase.auth().currentUser.uid;
+        } catch (e) {
+          alert("Please login first!");
+          return 0;
+        }
+
+        var challengeData =[
+          ["C0002", "TEST #2","2020-01-19",""]
+        ];
+        
+        var challengeHistory =[
+          ["C0001", "TEST #1","2020-01-09",""]
+        ];
+        
+        database.ref('users/三峽運動中心/挑戰賽').set({
+          現在挑戰賽: JSON.stringify(challengeData),
+          過去挑戰賽: JSON.stringify(challengeHistory),          
+        });
+        
+        
+        var challengeMember =[
+          ["C0001", ["小白", "已", "已確認", "U002", "09XXXXX222"], ["小華", "已", "已確認", "U003", "09XXXXX333"]],   
+          ["C0002", ["小白", "已", "未確認", "U002", "09XXXXX222"], ["小華", "已", "未確認", "U003", "09XXXXX333"]],            
+        ];          
+        
+        database.ref('users/三峽運動中心/挑戰賽管理').set({
+          挑戰賽會員: JSON.stringify(challengeMember),
+        });
+
+
+        i++;
+
+      }
+
+      function aaaFunction() {
+        console.log("aaa");
+        //$("#centerCell").css('background-color', 'red');
+        $("#aaa").css({
+          "background-color": "yellow",
+          "font-size": "200%"
+        });
+        $("#aaa").html('Save');
+      }
+
+
+
+      function cccFunction() {
+        console.log("ccc");
+
+        $("#challengeTable").hide();
+        $("#addChallenge").show();
+      }
+    </script>
+
+</body>
+
+</html>

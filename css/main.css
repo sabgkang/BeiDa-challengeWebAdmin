@@ -1,0 +1,202 @@
+/*
+html { 
+  background: url(../webCourseBg.png) no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+tr{
+    background-color: rgba(255,255,255,0.5);
+}
+*/
+
+h1 {
+  color: dimgray;
+  text-align: center;
+  font-family:'Noto Sans TC';
+}
+
+h2 {
+  color: dimgray;
+  margin-left: 20px;
+  font-family:'Noto Sans TC';
+}
+
+#table-header {
+  font-size: 18px;
+}
+
+.centerCell {
+  text-align: center;
+}
+
+#challengeTable{
+  font-family:'Noto Sans TC';
+}
+
+#challengeTable_info, #challengeTable_filter, #challengeTable_paginate{
+  font-family:'Noto Sans TC';
+}
+
+#challengeHistoryTable{
+  font-family:'Noto Sans TC';
+}
+
+#challengeHistoryTable_info, #challengeHistoryTable_filter, #challengeHistoryTable_paginate {
+  font-family:'Noto Sans TC';
+}
+
+/*
+#challengeMemberTable{
+  font-size: 16px;
+  font-family:'Noto Sans TC';
+}
+*/
+
+.to-edit{
+  height: 30px;
+  width: 50px;
+  background-color: gray;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-family:'Noto Sans TC';
+  margin-bottom: 5px; 
+}
+
+.to-edit:hover{
+  background-color: dodgerblue;
+  color: white;
+}
+
+.to-remark{
+  height: 30px;
+  width: 50px;
+  background-color: gray;
+  border: none;
+  color: white;
+  font-family:'Noto Sans TC';
+  margin-bottom: 5px; 
+}
+
+.to-delete{
+  height: 30px;
+  width: 50px;  
+  background-color: gray;
+  border: none;
+  color: white;
+
+  cursor: pointer;
+  font-family:'Noto Sans TC';
+ 
+}
+
+.to-delete:hover{
+  background-color: crimson;
+  color: white;
+}
+
+.challengeInput{
+  height: 30px;
+  width: 442px;
+  font-size: 20px;
+  margin: 10px;
+  padding-left: 10px; 
+  font-family:'Noto Sans TC';
+}
+
+.challengeLabel {
+  font-weight: bold;
+  float: left; width: 100px; padding-top: 15px;
+  margin-left: 20px;
+  font-size: 20px;
+  font-family:'Noto Sans TC';
+}
+
+.challengeInputDetail{
+  height: 20px;
+  width: 400px;
+  font-size: 16px;
+  margin: 5px;
+  font-family:'Noto Sans TC';
+}
+
+.challengeLabelDetail {
+  font-weight: bold;
+  height: 20px;
+  float: left; width: 80px; padding-top: 5px;
+  margin-left: 20px;
+  font-size: 16px;
+  font-family:'Noto Sans TC';
+}
+
+#challengeNumber {
+  margin-left: 20px;
+}
+
+.descLabel {
+  font-weight: bold;
+  padding-top: 15px;
+  margin-left: 20px;
+  font-size: 20px;
+  font-family:'Noto Sans TC';
+}
+
+.btn-blue:enabled {
+  background-color: DodgerBlue;
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family:'Noto Sans TC';
+  margin-left: 20px;
+  margin-bottom: 20px;  
+}
+
+/* Darker background on mouse-over */
+.btn-blue:hover:enabled {
+  background-color: RoyalBlue;
+}
+
+.btn-blue:disabled {
+  background-color: Gray;
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: not-allowed;
+  font-family:'Noto Sans TC';
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.btn-red:enabled {
+  background-color: Red;
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  font-family:'Noto Sans TC';
+  margin-left: 40px;
+  margin-bottom: 20px;
+}
+
+/* Darker background on mouse-over */
+.btn-red:hover:enabled {
+  background-color: Crimson;
+}
+
+.btn-red:disabled {
+  background-color: Gray;
+  border: none;
+  color: white;
+  padding: 12px 16px;
+  font-size: 16px;
+  cursor: not-allowed;
+  font-family:'Noto Sans TC';
+  margin-bottom: 20px;
+}
